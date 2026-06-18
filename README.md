@@ -11,13 +11,11 @@ Aplicacion Laravel + Livewire que integra `products` y `carts` desde Fake Store 
 - Los Web Services externos solo se consumen desde `FakeStoreApiClient`.
 - La suite actual protege contrato, errores, flujo Livewire y limite arquitectonico entre UI y capa de integracion.
 
-## En Menos de 5 Minutos
-
-### Que problema resuelve
+## Que problema resuelve
 
 El cliente pide consumir varios Web Services externos, pero no quiere exponerlos como varias APIs distintas hacia la interfaz. Este proyecto resuelve eso con una fachada interna que presenta `products` y `carts` como una sola fuente consistente.
 
-### Como esta organizado
+## Como esta organizado
 
 ```text
 Livewire / Controllers
@@ -38,7 +36,7 @@ FakeStoreApiClient
 Fake Store API
 ```
 
-### Que debes ejecutar
+## Que debes ejecutar
 
 ```bash
 cd habitanto
@@ -82,11 +80,11 @@ Si usas Homely:
 
 ## Contexto y Objetivo
 
-### Objetivo funcional
+## Objetivo funcional
 
 Consumir recursos externos de Fake Store API y exponerlos hacia la UI y la API interna como un unico punto de integracion, con contratos controlados y manejo de errores consistente.
 
-### Objetivo arquitectonico
+## Objetivo arquitectonico
 
 - evitar que Livewire consuma `Http::` o URLs externas
 - evitar acoplar la UI a la forma cruda del proveedor externo
@@ -137,7 +135,7 @@ habitanto/
 `-- tests/
 ```
 
-### Responsabilidad por carpeta
+## Responsabilidad por carpeta
 
 - `app/Livewire`
   - estado de pantalla, acciones de usuario y rendering reactivo
@@ -160,7 +158,7 @@ habitanto/
 
 ## Arquitectura General
 
-### Diagrama ASCII
+## Diagrama ASCII
 
 ```text
                          +---------------------------+
@@ -209,7 +207,7 @@ habitanto/
                     +---------------------------------------+
 ```
 
-### Porque esta arquitectura
+## Porque esta arquitectura
 
 - La UI queda aislada de cambios de proveedor.
 - La validacion de payloads externos no contamina la vista.
@@ -219,7 +217,7 @@ habitanto/
 
 ## Flujo Completo de la Aplicacion
 
-### Flujo de carga del dashboard
+## Flujo de carga del dashboard
 
 ```text
 GET /fake-store
@@ -241,7 +239,7 @@ GET /fake-store
 -> resources/views/livewire/fake-store-dashboard.blade.php
 ```
 
-### Flujo de guardado de producto
+## Flujo de guardado de producto
 
 ```text
 Usuario hace click en "Guardar producto"
@@ -260,7 +258,7 @@ Usuario hace click en "Guardar producto"
 -> UI refrescada
 ```
 
-### Flujo de API interna
+## Flujo de API interna
 
 ```text
 GET /api/fake-store/products
@@ -277,7 +275,7 @@ GET /api/fake-store/products
 
 ## Wrapper de Servicios Externos
 
-### Que es
+## Que es
 
 `ExternalServicesFacade` es la capa unificada que oculta la existencia de multiples recursos o proveedores externos. No es una facade estatica de Laravel; es una fachada de aplicacion que orquesta servicios internos y estandariza comportamiento.
 
@@ -285,7 +283,7 @@ Archivo clave:
 
 - `habitanto/app/Services/FakeStore/ExternalServicesFacade.php`
 
-### Que resuelve
+## Que resuelve
 
 - entrega un unico punto de entrada para `products` y `carts`
 - centraliza logging y reporte de errores
@@ -293,7 +291,7 @@ Archivo clave:
 - conserva contratos internos estables
 - soporta snapshots para el dashboard sin propagar detalles de integracion
 
-### Porque no se consume el WS directo desde Livewire
+## Porque no se consume el WS directo desde Livewire
 
 Si Livewire conociera el WS:
 
@@ -306,7 +304,7 @@ La fachada existe precisamente para evitar ese acoplamiento.
 
 ## Contratos Publicos
 
-### Superficies publicas del sistema
+## Superficies publicas del sistema
 
 - Vista web: `GET /fake-store`
 - API interna:
@@ -323,7 +321,7 @@ La fachada existe precisamente para evitar ese acoplamiento.
   - `PATCH /api/fake-store/carts/{cart}`
   - `DELETE /api/fake-store/carts/{cart}`
 
-### Contrato JSON de salida
+## Contrato JSON de salida
 
 Todas las respuestas HTTP internas usan `ApiResponse`.
 
@@ -350,7 +348,7 @@ Error:
 }
 ```
 
-### Contrato de entrada para products
+## Contrato de entrada para products
 
 ```json
 {
@@ -365,7 +363,7 @@ Error:
 
 `id` es opcional en create y se usa cuando el flujo es update.
 
-### Contrato de entrada para carts
+## Contrato de entrada para carts
 
 ```json
 {
@@ -385,7 +383,7 @@ Error:
 }
 ```
 
-### Contrato de salida tipado interno
+## Contrato de salida tipado interno
 
 Antes de llegar a la UI o a los controllers, la integracion se transforma a DTOs:
 
@@ -397,7 +395,7 @@ Esto evita propagar arrays crudos del proveedor por todo el sistema.
 
 ## Manejo de Errores
 
-### Tipos de error normalizados
+## Tipos de error normalizados
 
 - conexion fallida
 - timeout
@@ -411,7 +409,7 @@ Esto evita propagar arrays crudos del proveedor por todo el sistema.
 - payload incompleto
 - error interno inesperado
 
-### Flujo de errores
+## Flujo de errores
 
 ```text
 Proveedor externo falla
@@ -422,7 +420,7 @@ Proveedor externo falla
 -> ApiResponse o la UI muestran mensaje seguro para el usuario
 ```
 
-### Diagrama ASCII de error
+## Diagrama ASCII de error
 
 ```text
 Fake Store API / Red
@@ -448,7 +446,7 @@ ExternalServicesFacade::report()
         +--> Livewire => errorMessage
 ```
 
-### Principios de manejo
+## Principios de manejo
 
 - no se muestran errores tecnicos crudos en pantalla
 - los detalles utiles para diagnostico van al log
@@ -457,7 +455,7 @@ ExternalServicesFacade::report()
 
 ## Observabilidad y Logging
 
-### Que se registra
+## Que se registra
 
 La fachada registra eventos de error con:
 
@@ -466,12 +464,12 @@ La fachada registra eventos de error con:
 - status
 - contexto del fallo
 
-### Donde observar
+## Donde observar
 
 - `habitanto/storage/logs/laravel.log`
 - `php artisan pail`
 
-### Comandos utiles
+## Comandos utiles
 
 ```bash
 cd habitanto
@@ -479,7 +477,7 @@ php artisan pail
 tail -n 80 storage/logs/laravel.log
 ```
 
-### Que buscar en logs
+## Que buscar en logs
 
 - `External services facade error`
 - `Fake Store products dashboard error`
@@ -489,33 +487,33 @@ tail -n 80 storage/logs/laravel.log
 
 ## Patrones de Diseno
 
-### Service
+## Service
 
 `ProductService` y `CartService` encapsulan operaciones de aplicacion por recurso.
 
-### Repository
+## Repository
 
 `ProductRepository` y `CartRepository` concentran el acceso al proveedor externo y la traduccion del payload.
 
-### Facade / Wrapper
+## Facade / Wrapper
 
 `ExternalServicesFacade` ofrece una unica cara interna hacia la UI y la API.
 
-### DTO
+## DTO
 
 Los objetos en `app/Data/FakeStore` desacoplan la capa interna de arrays arbitrarios y vuelven explicitos los contratos.
 
-### Adapter
+## Adapter
 
 Los repositorios actuan como adaptadores entre el formato del proveedor externo y el formato interno tipado.
 
-### Boundary Test
+## Boundary Test
 
 La suite valida que Livewire no se acople a `Http::`, `FakeStoreApiClient` ni servicios individuales.
 
 ## SOLID, DRY y Separation of Concerns
 
-### Single Responsibility Principle
+## Single Responsibility Principle
 
 - Livewire maneja estado y eventos de UI.
 - Controllers exponen endpoints.
@@ -524,30 +522,30 @@ La suite valida que Livewire no se acople a `Http::`, `FakeStoreApiClient` ni se
 - Validators revisan la forma del payload.
 - Exceptions traducen errores tecnicos.
 
-### Open/Closed Principle
+## Open/Closed Principle
 
 La UI depende de una fachada estable. Es posible cambiar el proveedor o agregar otro recurso extendiendo servicios y repositorios, sin reescribir la vista principal.
 
-### Liskov Substitution Principle
+## Liskov Substitution Principle
 
 No hay una jerarquia polimorfica formal en este punto, pero la documentacion y la estructura favorecen futuras abstracciones por interfaz sin romper consumidores.
 
-### Interface Segregation Principle
+## Interface Segregation Principle
 
 El sistema aun no define interfaces dedicadas para facade, repository o client. Es una mejora posible si el numero de proveedores crece.
 
-### Dependency Inversion Principle
+## Dependency Inversion Principle
 
 La inversion es parcial. Laravel resuelve dependencias por inyeccion, pero todavia se depende de clases concretas en varias capas. La arquitectura ya esta preparada para refactor incremental a contratos.
 
-### DRY
+## DRY
 
 - `ApiResponse` evita duplicar forma JSON
 - `FakeStoreException` evita repetir traduccion de errores
 - `FakeStoreApiClient` evita repetir configuracion HTTP
 - `FakeStoreResponseValidator` evita validaciones dispersas
 
-### Separation of Concerns
+## Separation of Concerns
 
 La UI, la validacion de entrada, la integracion externa, la normalizacion de errores y la construccion de respuesta estan separadas en archivos distintos y con limites claros.
 
@@ -555,7 +553,7 @@ La UI, la validacion de entrada, la integracion externa, la normalizacion de err
 
 La estrategia de testing esta orientada a proteger comportamiento, contrato y arquitectura.
 
-### Feature Tests
+## Feature Tests
 
 Validan flujos reales de HTTP o Livewire dentro de Laravel.
 
@@ -566,7 +564,7 @@ Casos actuales:
 - creacion de carrito
 - actualizacion de la coleccion Livewire tras crear producto
 
-### Contract Tests
+## Contract Tests
 
 Validan que el wrapper mantenga el contrato esperado al transformar respuestas.
 
@@ -575,7 +573,7 @@ Casos actuales:
 - `ExternalServicesFacade` devuelve `ProductResponseData`
 - la API interna mantiene estructura `success`, `message`, `data`, `meta`
 
-### Boundary Tests
+## Boundary Tests
 
 Validan limites arquitectonicos.
 
@@ -583,7 +581,7 @@ Caso actual:
 
 - Livewire no consume `Http::`, `FakeStoreApiClient`, `ProductService` ni `CartService` directamente
 
-### Error Handling Tests
+## Error Handling Tests
 
 Protegen normalizacion de errores y respuestas invalidas.
 
@@ -594,7 +592,7 @@ Casos actuales:
 - respuesta no-array
 - datos incompletos
 
-### Unit Tests
+## Unit Tests
 
 La base del proyecto incluye capa para pruebas unitarias, pero hoy la cobertura significativa esta concentrada en Feature, Contract y Boundary. Si el sistema crece, los mejores candidatos para Unit Tests son:
 
@@ -603,7 +601,7 @@ La base del proyecto incluye capa para pruebas unitarias, pero hoy la cobertura 
 - DTOs request/response
 - normalizacion local de colecciones en Livewire
 
-### Comandos
+## Comandos
 
 ```bash
 cd habitanto
@@ -614,7 +612,7 @@ vendor/bin/pint --test
 
 ## ADR y Restricciones
 
-### ADR-001: La UI no consume proveedores externos directamente
+## ADR-001: La UI no consume proveedores externos directamente
 
 Decision:
 
@@ -626,7 +624,7 @@ Razon:
 - centraliza errores
 - simplifica evolucion del backend
 
-### ADR-002: Toda respuesta externa se valida antes de propagarse
+## ADR-002: Toda respuesta externa se valida antes de propagarse
 
 Decision:
 
@@ -636,7 +634,7 @@ Razon:
 
 - evita que payloads incompletos contaminen la UI o la API interna
 
-### ADR-003: Los errores se normalizan a una excepcion de dominio de integracion
+## ADR-003: Los errores se normalizan a una excepcion de dominio de integracion
 
 Decision:
 
@@ -647,7 +645,7 @@ Razon:
 - unifica comportamiento
 - evita mensajes incoherentes por capa
 
-### ADR-004: La API interna conserva contratos estables
+## ADR-004: La API interna conserva contratos estables
 
 Decision:
 
@@ -657,7 +655,7 @@ Razon:
 
 - permite cambiar integracion sin romper consumidores
 
-### Restricciones actuales del proyecto
+## Restricciones actuales del proyecto
 
 - no romper rutas actuales
 - no cambiar nombres de metodos publicos ya usados
@@ -667,11 +665,11 @@ Razon:
 
 ## Como Extender el Sistema
 
-### Objetivo
+## Objetivo
 
 Agregar un nuevo recurso o incluso un nuevo proveedor sin romper la UI actual.
 
-### Ruta segura para agregar un nuevo proveedor
+## Ruta segura para agregar un nuevo proveedor
 
 1. Crear un cliente o adapter del nuevo proveedor.
 2. Crear un repository por recurso que traduzca el payload externo a DTOs internos.
@@ -680,11 +678,11 @@ Agregar un nuevo recurso o incluso un nuevo proveedor sin romper la UI actual.
 5. Mantener el contrato interno hacia Livewire y controllers.
 6. Agregar pruebas de contrato, error y boundary.
 
-### Regla clave
+## Regla clave
 
 La UI no debe saber si los datos vienen de Fake Store API, de otro proveedor o de varios proveedores compuestos.
 
-### Ejemplo conceptual
+## Ejemplo conceptual
 
 ```text
 NuevoProveedorApiClient
@@ -698,7 +696,7 @@ Si el contrato interno se conserva, la vista no necesita cambios estructurales.
 
 ## Instalacion y Ejecucion
 
-### Variables relevantes
+## Variables relevantes
 
 Configurar en `habitanto/.env`:
 
@@ -711,7 +709,7 @@ FAKESTORE_CONNECT_TIMEOUT=5
 FAKESTORE_FORCE_IP_RESOLVE=v4
 ```
 
-### Instalacion
+## Instalacion
 
 ```bash
 cd habitanto
@@ -722,21 +720,21 @@ npm install
 npm run build
 ```
 
-### Ejecucion local
+## Ejecucion local
 
 ```bash
 cd habitanto
 php artisan serve
 ```
 
-### Ejecucion con tooling del proyecto
+## Ejecucion con tooling del proyecto
 
 ```bash
 cd habitanto
 composer dev
 ```
 
-### Homely
+## Homely
 
 Ejemplo de mapeo:
 
@@ -749,7 +747,7 @@ Ejemplo de mapeo:
 
 ## Troubleshooting
 
-### El dashboard muestra "No fue posible conectar con Fake Store API"
+## El dashboard muestra "No fue posible conectar con Fake Store API"
 
 1. Validar conectividad desde el runtime de PHP de Laravel:
 
@@ -781,7 +779,7 @@ cd habitanto
 tail -n 80 storage/logs/laravel.log
 ```
 
-### Aparece `cURL error 28: Resolving timed out`
+## Aparece `cURL error 28: Resolving timed out`
 
 Probable causa:
 
@@ -793,7 +791,7 @@ Acciones:
 - revisar salida de PHP CLI vs PHP-FPM
 - confirmar que el host `fakestoreapi.com` resuelve desde el entorno web
 
-### La coleccion live no refleja create o update
+## La coleccion live no refleja create o update
 
 Revisar:
 
@@ -802,7 +800,7 @@ Revisar:
 - que no exista un error normalizado bloqueando el flujo
 - que la sesion de Laravel este funcionando correctamente para overlays locales
 
-### La ruta `https://habitanto.voc/fake-store` no abre
+## La ruta `https://habitanto.voc/fake-store` no abre
 
 Verificar:
 
